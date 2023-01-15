@@ -7,6 +7,8 @@ import {
 } from "../helper-hardhat-config"
 import { autoFundCheck, verify } from "../helper-functions"
 
+const oneLink = "1000000000000000000" // 1 LINK
+
 const deployFunction: DeployFunction = async ({ getNamedAccounts, deployments }) => {
     const { deploy, log, get } = deployments
 
@@ -66,6 +68,7 @@ const deployFunction: DeployFunction = async ({ getNamedAccounts, deployments })
         ) {
             await run("fund-link", {
                 contract: apiConsumer.address,
+                fundamount: oneLink,
                 linkaddress: linkTokenAddress,
             })
         } else {
