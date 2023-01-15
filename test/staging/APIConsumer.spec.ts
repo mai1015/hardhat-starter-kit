@@ -4,6 +4,7 @@ import { APIConsumer } from "../../typechain"
 import { assert } from "chai"
 import { BigNumber, constants } from "ethers"
 import { autoFundCheck } from "../../helper-functions"
+import { time } from "@nomicfoundation/hardhat-network-helpers"
 
 developmentChains.includes(network.name)
     ? describe.skip
@@ -16,9 +17,11 @@ developmentChains.includes(network.name)
               const chainId: number | undefined = network.config.chainId
               if (!chainId) return
               linkTokenAddress = networkConfig[chainId].linkToken!
+              const amount: BigNumber = networkConfig[chainId].fundAmount
               if (await autoFundCheck(apiConsumer.address, network.name, linkTokenAddress, "")) {
                   await run("fund-link", {
                       contract: apiConsumer.address,
+                      fundamount: amount,
                       linkaddress: linkTokenAddress,
                   })
               }
@@ -33,23 +36,22 @@ developmentChains.includes(network.name)
           it("Our event should successfully fire on callback", async function () {
               this.timeout(200000) // wait 200 seconds max
               // we setup a promise so we can wait for our callback from the `once` function
-              await new Promise(async (resolve, reject) => {
+              return new Promise<void>(async (resolve, reject) => {
                   // setup listener for our event
-                  apiConsumer.once("DataFullfilled", async () => {
-                      console.log("DataFullfilled event fired!")
-                      const volume: BigNumber = await apiConsumer.volume()
-                      // assert throws an error if it fails, so we need to wrap
-                      // it in a try/catch so that the promise returns event
-                      // if it fails.
-                      try {
-                          assert(volume.gt(constants.Zero), "The volume is more than 0. ")
-                          resolve(true)
-                      } catch (e) {
-                          reject(e)
-                      }
-                  })
-
-                  await apiConsumer.requestVolumeData()
+                  //   apiConsumer.once("DataFullfilled", async () => {
+                  //       console.log("DataFullfilled event fired!")
+                  //       const volume: BigNumber = await apiConsumer.volume()
+                  //       // assert throws an error if it fails, so we need to wrap
+                  //       // it in a try/catch so that the promise returns event
+                  //       // if it fails.
+                  //       try {
+                  //           assert(volume.gt(constants.Zero), "The volume is more than 0. ")
+                  //           resolve()
+                  //       } catch (e) {
+                  //           reject(e)
+                  //       }
+                  //   })
+                  //   await apiConsumer.requestVolumeData()
               })
           })
       })

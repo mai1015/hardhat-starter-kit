@@ -1,8 +1,9 @@
-import { developmentChains } from "../../helper-hardhat-config"
-import { network, ethers } from "hardhat"
+import { developmentChains, networkConfig } from "../../helper-hardhat-config"
+import { network, ethers, run } from "hardhat"
 import { RandomNumberDirectFundingConsumerV2 } from "../../typechain"
 import { assert } from "chai"
-import { BigNumber, constants } from "ethers"
+import { BigNumber } from "ethers"
+import { autoFundCheck } from "../../helper-functions"
 
 developmentChains.includes(network.name)
     ? describe.skip
@@ -13,6 +14,25 @@ developmentChains.includes(network.name)
               randomNumberConsumerV2 = await ethers.getContract(
                   "RandomNumberDirectFundingConsumerV2"
               )
+
+              const chainId: number | undefined = network.config.chainId
+              if (!chainId) return
+              const linkTokenAddress = networkConfig[chainId].linkToken!
+              const amount: BigNumber = networkConfig[chainId].fundAmount
+              if (
+                  await autoFundCheck(
+                      randomNumberConsumerV2.address,
+                      network.name,
+                      linkTokenAddress,
+                      ""
+                  )
+              ) {
+                  await run("fund-link", {
+                      contract: randomNumberConsumerV2.address,
+                      fundamount: amount,
+                      linkaddress: linkTokenAddress,
+                  })
+              }
           })
 
           afterEach(async function () {
@@ -23,7 +43,7 @@ developmentChains.includes(network.name)
               const gasLimit = 200000
               const numWords = 2
               // we setup a promise so we can wait for our callback from the `once` function
-              await new Promise(async (resolve, reject) => {
+              return new Promise<void>(async (resolve, reject) => {
                   // setup listener for our event
                   randomNumberConsumerV2.once("RequestFulfilled", async () => {
                       console.log("RequestFulfilled event fired!")
@@ -42,7 +62,7 @@ developmentChains.includes(network.name)
                               randomWords.length === numWords,
                               "Didn't obtain the right number of random words"
                           )
-                          resolve(true)
+                          resolve()
                       } catch (e) {
                           reject(e)
                       }

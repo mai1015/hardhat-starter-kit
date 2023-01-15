@@ -22,7 +22,7 @@ developmentChains.includes(network.name)
           it("Our event should successfully fire event on callback", async function () {
               this.timeout(300000) // wait 300 seconds max
               // we setup a promise so we can wait for our callback from the `once` function
-              await new Promise(async (resolve, reject) => {
+              return new Promise<void>(async (resolve, reject) => {
                   // setup listener for our event
                   randomNumberConsumerV2.once("ReturnedRandomness", async () => {
                       console.log("ReturnedRandomness event fired!")
@@ -42,7 +42,7 @@ developmentChains.includes(network.name)
                               secondRandomNumber.gt(constants.Zero),
                               "Second random number is greather than zero"
                           )
-                          resolve(true)
+                          resolve()
                       } catch (e) {
                           reject(e)
                       }

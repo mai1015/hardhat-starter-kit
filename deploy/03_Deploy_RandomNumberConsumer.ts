@@ -55,6 +55,7 @@ const deployFunction: DeployFunction = async ({ getNamedAccounts, deployments })
 
     if (chainId === 31337) {
         // add consumer
+        // @ts-ignore
         await VRFCoordinatorV2Mock.addConsumer(subscriptionId, randomNumberConsumerV2.address)
     }
 

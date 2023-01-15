@@ -88,7 +88,7 @@ const config: HardhatUserConfig = {
         },
     },
     gasReporter: {
-        enabled: process.env.REPORT_GAS !== undefined,
+        enabled: false, // process.env.REPORT_GAS !== undefined,
         currency: "USD",
         outputFile: "gas-report.txt",
         noColors: true,

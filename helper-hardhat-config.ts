@@ -53,7 +53,7 @@ export const networkConfig: NetworkConfigMap = {
         oracle: "0xCC79157eb46F5624204f47AB42b3906cAA40eaB7",
         jobId: "ca98366cc7314957b8c012c72f05aeeb",
         fee: "100000000000000000",
-        fundAmount: BigNumber.from("100000000000000000"),
+        fundAmount: BigNumber.from("1000000000000000000"),
         automationUpdateInterval: "30",
     },
     137: {
@@ -63,7 +63,7 @@ export const networkConfig: NetworkConfigMap = {
         oracle: "0x0a31078cd57d23bf9e8e8f1ba78356ca2090569e",
         jobId: "12b86114fa9e46bab3ca436f88e1a912",
         fee: "100000000000000",
-        fundAmount: BigNumber.from("100000000000000"),
+        fundAmount: BigNumber.from("100000000000000000"), // 0.1
     },
     80001: {
         name: "mumbai",

@@ -16,6 +16,10 @@ export const autoFundCheck = async (
 
     if (!chainId) return
     const amount: BigNumber = networkConfig[chainId].fundAmount
+    if (amount.lte(constants.Zero)) {
+        console.warn("No need to fund in this network")
+        return false
+    }
 
     const accounts: SignerWithAddress[] = await ethers.getSigners()
     const signer: SignerWithAddress = accounts[0]
@@ -25,19 +29,21 @@ export const autoFundCheck = async (
     const balance: BigNumber = await linkTokenContract.balanceOf(signer.address)
     const contractBalance: BigNumber = await linkTokenContract.balanceOf(contractAddr)
 
-    if (balance > amount && amount > constants.Zero && contractBalance < amount) {
-        //user has enough LINK to auto-fund and the contract isn't already funded
-        return true
-    } else {
-        //user doesn't have enough LINK, print a warning
+    if (balance.lt(amount)) {
         console.warn(
             `Account doesn't have enough LINK to fund contracts, or you're deploying to a network where auto funding isnt' done by default\n`,
             `Please obtain LINK via the faucet at https://faucets.chain.link/, then run the following command to fund contract with LINK:\n`,
             `yarn hardhat fund-link --contract ${contractAddr} --network ${networkName} ${additionalMessage}`
         )
-
         return false
     }
+
+    if (contractBalance.lt(amount)) {
+        return true
+    }
+
+    console.warn(`Contract is already funded.`)
+    return false
 }
 
 export const verify = async (contractAddress: string, args: any[]) => {
@@ -56,7 +62,6 @@ export const verify = async (contractAddress: string, args: any[]) => {
     }
 }
 
-
 // https://github.com/smartcontractkit/chainlink/blob/dbabde12def11a803d995e482e5fc4287d9cfce4/contracts/test/test-helpers/helpers.ts#L93
 const stripHexPrefix = (hex: string) => {
     if (!ethers.utils.isHexString(hex)) {
@@ -72,7 +77,7 @@ const addHexPrefix = (hex: string) => {
 }
 
 // https://github.com/smartcontractkit/chainlink/blob/dbabde12def11a803d995e482e5fc4287d9cfce4/contracts/test/test-helpers/helpers.ts#L30
-export const numToBytes32 = (num: number | bigint | BigNumber ) => {
+export const numToBytes32 = (num: number | bigint | BigNumber) => {
     const hexNum = ethers.utils.hexlify(num)
     const strippedNum = stripHexPrefix(hexNum)
     if (strippedNum.length > 32 * 2) {

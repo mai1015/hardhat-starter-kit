@@ -33,7 +33,9 @@ task("withdraw-link", "Returns any LINK left in deployed contract")
                 contractAddr,
                 signer
             )
-            const transaction: ContractTransaction = await anyApiConsumerContract.withdrawLink()
+            const transaction: ContractTransaction = await anyApiConsumerContract.withdrawLink(
+                signer.address
+            )
             await transaction.wait()
 
             console.log(

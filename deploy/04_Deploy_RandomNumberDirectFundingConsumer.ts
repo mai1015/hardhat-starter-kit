@@ -1,13 +1,15 @@
 import { DeployFunction } from "hardhat-deploy/types"
-import { ethers, network } from "hardhat"
+import { ethers, network, run } from "hardhat"
 import {
     networkConfig,
     developmentChains,
     VERIFICATION_BLOCK_CONFIRMATIONS,
 } from "../helper-hardhat-config"
-import { verify } from "../helper-functions"
+import { autoFundCheck, verify } from "../helper-functions"
 import { BigNumber, ContractReceipt, ContractTransaction } from "ethers"
 import { VRFCoordinatorV2Mock } from "../typechain"
+
+const oneLink = "1000000000000000000" // 1 LINK
 
 const deployFunction: DeployFunction = async ({ getNamedAccounts, deployments }) => {
     const { deploy, get, log } = deployments
@@ -19,6 +21,7 @@ const deployFunction: DeployFunction = async ({ getNamedAccounts, deployments })
     let linkTokenAddress: string | undefined
     let wrapperAddress: string | undefined
     let subscriptionId: BigNumber
+    let additionalMessage: string = ``
 
     if (chainId === 31337) {
         const linkToken = await get("LinkToken")
@@ -56,6 +59,30 @@ const deployFunction: DeployFunction = async ({ getNamedAccounts, deployments })
     // log(
     //     `yarn hardhat request-random-number-direct-funding --contract ${randomNumberConsumerV2.address} --numwords 1 --network ${networkName}`
     // )
+
+    // Checking for funding...
+    if (
+        networkConfig[chainId].fundAmount &&
+        networkConfig[chainId].fundAmount.gt(ethers.constants.Zero)
+    ) {
+        log("Funding with LINK...")
+        if (
+            await autoFundCheck(
+                randomNumberConsumerV2.address,
+                network.name,
+                linkTokenAddress!,
+                additionalMessage
+            )
+        ) {
+            await run("fund-link", {
+                contract: randomNumberConsumerV2.address,
+                fundamount: oneLink,
+                linkaddress: linkTokenAddress,
+            })
+        } else {
+            log("Contract already has LINK!")
+        }
+    }
 
     if (chainId == 31337) {
         console.log(
