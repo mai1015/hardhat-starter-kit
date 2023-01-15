@@ -29,7 +29,7 @@ developmentChains.includes(network.name)
               ) {
                   await run("fund-link", {
                       contract: randomNumberConsumerV2.address,
-                      fundamount: amount,
+                      fundamount: amount.toString(),
                       linkaddress: linkTokenAddress,
                   })
               }
@@ -43,7 +43,7 @@ developmentChains.includes(network.name)
               const gasLimit = 200000
               const numWords = 2
               // we setup a promise so we can wait for our callback from the `once` function
-              return new Promise<void>(async (resolve, reject) => {
+              await new Promise<void>(async (resolve, reject) => {
                   // setup listener for our event
                   randomNumberConsumerV2.once("RequestFulfilled", async () => {
                       console.log("RequestFulfilled event fired!")

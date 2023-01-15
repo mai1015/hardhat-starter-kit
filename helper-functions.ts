@@ -1,5 +1,5 @@
 import { ethers, network, run } from "hardhat"
-import { networkConfig } from "./helper-hardhat-config"
+import { developmentChains, networkConfig } from "./helper-hardhat-config"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { BigNumber, constants } from "ethers"
 import { LinkToken, LinkToken__factory } from "./typechain"
@@ -10,8 +10,11 @@ export const autoFundCheck = async (
     linkTokenAddress: string,
     additionalMessage: string
 ) => {
+    if (developmentChains.includes(network.name)) {
+        console.warn("Do not fund on dev chain")
+        return false
+    }
     const chainId: number | undefined = network.config.chainId
-
     console.log("Checking to see if contract can be auto-funded with LINK:")
 
     if (!chainId) return
