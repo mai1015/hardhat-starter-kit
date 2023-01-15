@@ -1,26 +1,26 @@
-import { ethers } from "hardhat"
 import { HardhatRuntimeEnvironment } from "hardhat/types"
 import { DeployFunction } from "hardhat-deploy/types"
-import { networkConfig } from "../helper-hardhat-config"
+import { developmentChains, networkConfig } from "../helper-hardhat-config"
+import { verify } from "../helper-functions"
 
-const FUND_AMOUNT = "1000000000000000000000"
-
-const deployFundMe: DeployFunction = async function(
-    hre: HardhatRuntimeEnvironment
-) {
+const deployFundMe: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const { getNamedAccounts, deployments, network } = hre
     const { deploy, log } = deployments
     const { deployer } = await getNamedAccounts()
 
-
     log("----------------------------------------------------")
+    log("Deploying...")
+    // const args: any[] = []
+    // const ContractName = await deploy("ContractName", {
+    //     from: deployer,
+    //     args,
+    //     log: true,
+    //     waitConfirmations: developmentChains.includes(network.name) ? 1 : 6,
+    // })
 
-    if (
-    //   !devNetwork.includes(network.name) &&
-      process.env.ETHERSCAN_API_KEY
-    ) {
-      log("Verifying...")
-    //   await verify(raffle.address, args)
+    if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
+        log("Verifying...")
+        // await verify(ContractName.address, args)
     }
     log("----------------------------------------------------")
 }
